@@ -54,6 +54,12 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
 .nav button:hover{color:var(--ink)}
 .nav button[aria-pressed="true"]{color:var(--ground);background:var(--ink);border-color:var(--ink)}
 .nav button:focus-visible{outline:1px solid var(--population);outline-offset:2px}
+/* the theme switch sits apart from the two view buttons, hard right.
+   The swatch shows the ground you would land on; JS paints it, because it is the
+   only place that knows the effective theme when nothing is stamped. */
+.nav .theme{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav .theme .swatch{width:9px;height:9px;border-radius:50%;border:1px solid var(--ink-3);
+                    transition:background .5s ease}
 
 .hero{padding:11vh 0 9vh;display:flex;flex-direction:column;gap:26px}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
@@ -183,11 +189,20 @@ td.v{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 
+<script>
+// Stamp a remembered choice BEFORE the page paints. The switch itself lives at the
+// bottom with the rest of the JS; only this one line has to run early, or the viewer
+// sees the OS theme flash past on every load.
+try{ const t = localStorage.getItem("pulse-theme");
+     if (t) document.documentElement.setAttribute("data-theme", t); }catch(e){}
+</script>
+
 <div class="wrap">
 
   <nav class="nav">
     <button type="button" data-view="walkthrough" aria-pressed="true">Walkthrough</button>
     <button type="button" data-view="summary" aria-pressed="false">Summary</button>
+    <button type="button" class="theme" id="theme"><span class="swatch"></span><span id="theme-label">Paper</span></button>
   </nav>
 
   <div id="view-walkthrough">
@@ -665,7 +680,8 @@ td.v{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;
   });
 
   // repaint through the tokens when the viewer flips theme, either way
-  const repaint = () => { readTheme(); if (current) { render(current, false); drawCurve(current, 1); } };
+  const repaint = () => { readTheme(); labelTheme();
+                          if (current) { render(current, false); drawCurve(current, 1); } };
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repaint);
   new MutationObserver(repaint).observe(document.documentElement,
     {attributes:true, attributeFilter:["data-theme"]});
@@ -757,9 +773,11 @@ td.v{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;
   }
 
   // ── the two views ───────────────────────────────────────────────────────
-  document.querySelectorAll(".nav button").forEach(b => {
+  // [data-view], not every .nav button: the theme switch also lives in the nav and
+  // must not be treated as a view, or it would hide both of them.
+  document.querySelectorAll(".nav button[data-view]").forEach(b => {
     b.onclick = () => {
-      document.querySelectorAll(".nav button").forEach(o =>
+      document.querySelectorAll(".nav button[data-view]").forEach(o =>
         o.setAttribute("aria-pressed", String(o === b)));
       document.getElementById("view-walkthrough").hidden = b.dataset.view !== "walkthrough";
       document.getElementById("view-summary").hidden = b.dataset.view !== "summary";
@@ -770,5 +788,38 @@ td.v{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;
       scrollTo(0, 0);
     };
   });
+
+  // ── the theme switch ────────────────────────────────────────────────────
+  // Two worlds, named as the CSS names them: the black instrument screen and the
+  // cream paper counterpart. Nothing is stamped until the viewer picks, so the page
+  // follows the OS by default; once picked, the choice is remembered and wins over it.
+  // Setting data-theme is all the click does — the MutationObserver above repaints
+  // the canvases through the tokens.
+  const GROUND = {dark:"#050505", light:"#F4F1E8"};   // the two grounds, for the swatch
+  const themeBtn = document.getElementById("theme");
+  const themeLabel = document.getElementById("theme-label");
+  const osDark = matchMedia("(prefers-color-scheme: dark)");
+
+  // what the viewer is actually looking at: the stamp if there is one, else the OS
+  const effectiveTheme = () => document.documentElement.getAttribute("data-theme")
+                            || (osDark.matches ? "dark" : "light");
+
+  // the button names where it takes you, and the swatch shows that ground
+  function labelTheme(){
+    const next = effectiveTheme() === "dark" ? "light" : "dark";
+    themeLabel.textContent = next === "light" ? "Paper" : "Screen";
+    themeBtn.querySelector(".swatch").style.background = GROUND[next];
+    themeBtn.setAttribute("aria-label", next === "light"
+      ? "Switch to the cream paper theme" : "Switch to the dark screen theme");
+  }
+
+  themeBtn.onclick = () => {
+    const next = effectiveTheme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try{ localStorage.setItem("pulse-theme", next); }catch(e){}
+    labelTheme();
+  };
+
+  labelTheme();
 })();
 </script>
