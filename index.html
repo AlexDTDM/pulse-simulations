@@ -271,8 +271,8 @@ try{ const t = localStorage.getItem("pulse-theme");
     <div class="fold open" id="fold-process"><div><div class="box-body">
       <div class="nest">
         <div class="nest-l" style="--c:var(--population)"><b>population <em>— every participant except this one, no filtering</em></b>
-          <div class="nest-l" style="--c:var(--intervention)"><b>intervention_specific <em>— of those, every participant in the same intervention</em></b>
-            <div class="nest-l" style="--c:var(--tailored)"><b>tailored <em>— of those, the fifty nearest by age after matching the demographics</em></b>
+          <div class="nest-l" style="--c:var(--intervention)"><b>tailored_A <em>— across-intervention cohort: of those, everyone with the same disease, whatever their intervention; then the fifty nearest by age after matching the demographics</em></b>
+            <div class="nest-l" style="--c:var(--tailored)"><b>tailored_B <em>— same-intervention cohort: of those, only participants of the same intervention; then the fifty nearest by age after matching the demographics</em></b>
               <div class="nest-l" style="--c:var(--personalized)"><b>personalized <em>— of those, this participant alone</em></b></div>
             </div>
           </div>
@@ -290,8 +290,8 @@ try{ const t = localStorage.getItem("pulse-theme");
     <div class="eyebrow">PULSE · receptivity engine</div>
     <h1>Which designs let PULSE personalise</h1>
     <p class="lede">One row per simulated design, ranked by how much of its calls PULSE could
-      answer from the narrowest group: personalized first, then tailored, then
-      intervention_specific, then population. Next to each share is the day of the
+      answer from the narrowest group: personalized first, then tailored_B, then
+      tailored_A, then population. Next to each share is the day of the
       intervention that distribution was first chosen. Click any column to re-rank.</p>
   </header>
 
@@ -300,9 +300,12 @@ try{ const t = localStorage.getItem("pulse-theme");
     <div class="box-body">
       <div class="scroller"><table id="rank"></table></div>
       <p class="note" id="rank-calls"></p>
-      <p class="note">The <b>intervention_specific</b> column is the group carrying the same
-        disease as the participant. No run recorded a disease, so what it measures here is
-        the “not recorded” group — cohort size, not disease. Read it with that in mind.</p>
+      <p class="note">Both tailored columns are a demographic cohort, the fifty nearest by age
+        after matching on sex. <b>tailored_B</b> is the same-intervention cohort: at least 10 of its
+        interactions in the window are needed. <b>tailored_A</b> is the across-intervention cohort,
+        everyone sharing the same disease: at least 10 of its interactions in the window are needed.
+        A simulation with a single intervention gives both the same pool, so tailored_B wins whenever
+        either qualifies and tailored_A only appears once other interventions share the disease.</p>
       <p class="note">Runs that lost calls to server errors are left out, as are the
         hundred-participant runs.</p>
     </div>
@@ -312,8 +315,8 @@ try{ const t = localStorage.getItem("pulse-theme");
 
 </div>
 
-<script type="application/json" id="pulse-data">{"TP1_D25_DS2_N25_FV80_FVR80_Wd1-08-13_d1-13-18":{"tp":1,"dur":25,"ds":2,"n":25,"nw":2,"win":"next day 08-13 \u00b7 next day 13-18","fv":0.8,"fvr":0.8,"meta":{"TOUCHPOINT_PER_DAY":"1","INTERVENTION_DURATION":"25","DISEASE_STATUS":"2","NUMBER_OF_PARTICIPANTS":"25","INTERVENTION_WINDOWS":"next day 08-13 \u00b7 next day 13-18","FRACTION_OF_VULNERABLE":"0.8","FRACTION_OF_VULNERABLE_AND_RECEPTIVE":"0.8","AGE":"RANDOM","PARTICIPANT_SEX":"RANDOM","TOUCHPOINT_HOURS_POOL":"[19]","VULNERABILITY_ANSWER_WINDOW_H":"1"},"counts":{"tailored":342,"population":218,"personalized":186},"grid":["11001111111111330033433333004433440000440000334400","11111100001111433333333333004444440000003300004443","00111111000011333333003333333344443333334444440044","11001100110000000000000033003300433333333344334433","11111100111111000033333300000000003300330000004444","11110011001111000000333333330033004433440000440044","11001111111100003300003333333300004300443344000000","00110011110011333333003300333344333344334444440044","11001111000011000043330000430033444400334433334400","11110011111111333333330033004444334433003344444400","00111111111100003343000000000044000000003300444400","11111100111100003300003333333344000044000000440033","11110000000000330033330000004433430033333344444433","00001111000011003300330033000000334400000000000000","00110011111111333300430000333300330033434400000000","11000011001100003333333300330043000033330000443300","11000000111111333300333300334400330044330044003333","11111100000011333333330033334400444333004444444400","00001111000000000000000000000000000000000000000000","11001100111100330034333333330033003300000044004444","11111100110011330033000033330033003333000044004433","11111111111100433333003333330044443344440044000000","00111111110011330033333300334300004400004444430044","00110011111100334300004333333344330044443344003343","00110011001111333300333333003300334433003300440044"],"exp":1}}</script>
-<script type="application/json" id="summary-data">[{"tp":1,"dur":25,"n":25,"arm":"paid","win":"next day 08-13 \u00b7 next day 13-18","fv":0.8,"fvr":0.8,"calls":746,"share":{"personalized":0.2493,"tailored":0.4584,"intervention_specific":0.0,"population":0.2922},"day":{"personalized":8,"tailored":8,"intervention_specific":null,"population":1}}]</script>
+<script type="application/json" id="pulse-data">{"TP1_D25_DS2_N25_FV80_FVR80_Wd1-08-13_d1-13-18":{"tp":1,"dur":25,"ds":2,"n":25,"nw":2,"win":"next day 08-13 \u00b7 next day 13-18","fv":0.8,"fvr":0.8,"meta":{"TOUCHPOINT_PER_DAY":"1","INTERVENTION_DURATION":"25","DISEASE_STATUS":"2","NUMBER_OF_PARTICIPANTS":"25","INTERVENTION_WINDOWS":"next day 08-13 \u00b7 next day 13-18","FRACTION_OF_VULNERABLE":"0.8","FRACTION_OF_VULNERABLE_AND_RECEPTIVE":"0.8","AGE":"RANDOM","PARTICIPANT_SEX":"RANDOM","TOUCHPOINT_HOURS_POOL":"[19]","VULNERABILITY_ANSWER_WINDOW_H":"1"},"counts":{"tailored_B":342,"population":218,"personalized":186},"grid":["11001111111111330033433333004433440000440000334400","11111100001111433333333333004444440000003300004443","00111111000011333333003333333344443333334444440044","11001100110000000000000033003300433333333344334433","11111100111111000033333300000000003300330000004444","11110011001111000000333333330033004433440000440044","11001111111100003300003333333300004300443344000000","00110011110011333333003300333344333344334444440044","11001111000011000043330000430033444400334433334400","11110011111111333333330033004444334433003344444400","00111111111100003343000000000044000000003300444400","11111100111100003300003333333344000044000000440033","11110000000000330033330000004433430033333344444433","00001111000011003300330033000000334400000000000000","00110011111111333300430000333300330033434400000000","11000011001100003333333300330043000033330000443300","11000000111111333300333300334400330044330044003333","11111100000011333333330033334400444333004444444400","00001111000000000000000000000000000000000000000000","11001100111100330034333333330033003300000044004444","11111100110011330033000033330033003333000044004433","11111111111100433333003333330044443344440044000000","00111111110011330033333300334300004400004444430044","00110011111100334300004333333344330044443344003343","00110011001111333300333333003300334433003300440044"],"exp":1}}</script>
+<script type="application/json" id="summary-data">[{"tp":1,"dur":25,"n":25,"arm":"paid","win":"next day 08-13 \u00b7 next day 13-18","fv":0.8,"fvr":0.8,"calls":746,"share":{"personalized":0.2493,"tailored_B":0.4584,"tailored_A":0.0,"population":0.2922},"day":{"personalized":8,"tailored_B":8,"tailored_A":null,"population":1}}]</script>
 
 <script type="application/json" id="pulse-eng">{"curves":{"0":{"kind":"loglogistic","alpha":6.0,"beta":1.4747},"1":{"kind":"loglogistic","alpha":13.0,"beta":1.4747},"2":{"kind":"linear","day":30,"level":0.9}},"eng":{"TP1_D25_DS2_N25_FV80_FVR80_Wd1-08-13_d1-13-18":[25,25,25,25,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,23,23,23,23,23,23]}}</script>
 
@@ -323,7 +326,7 @@ try{ const t = localStorage.getItem("pulse-theme");
 
   const ENG = JSON.parse(document.getElementById("pulse-eng").textContent);
 
-  const NAME = {1:"population", 2:"intervention_specific", 3:"tailored", 4:"personalized"};
+  const NAME = {1:"population", 2:"tailored_A", 3:"tailored_B", 4:"personalized"};
   const TOKEN = {1:"--population", 2:"--intervention", 3:"--tailored", 4:"--personalized"};
   // read through the tokens so a theme switch repaints rather than baking colours in
   const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -704,8 +707,8 @@ try{ const t = localStorage.getItem("pulse-theme");
 
   const DIST = [
     {key:"personalized",          label:"personalized",          token:"--personalized"},
-    {key:"tailored",              label:"tailored",              token:"--tailored"},
-    {key:"intervention_specific", label:"intervention_\u200Bspecific", token:"--intervention"},
+    {key:"tailored_B",            label:"tailored_B",            token:"--tailored"},
+    {key:"tailored_A",            label:"tailored_A",            token:"--intervention"},
     {key:"population",            label:"population",            token:"--population"},
   ];
   const DESIGN = [
@@ -719,8 +722,8 @@ try{ const t = localStorage.getItem("pulse-theme");
     {key:"calls", label:"Calls"},
   ];
 
-  // the ranking the view opens on: most personalized first, ties broken by tailored then
-  // intervention_specific. The four shares sum to one, so population never breaks a tie.
+  // the ranking the view opens on: most personalized first, ties broken by tailored_B then
+  // tailored_A. The four shares sum to one, so population never breaks a tie.
   const rank = (a, b) => DIST.reduce((r, d) => r || b.share[d.key] - a.share[d.key], 0);
   let sortKey = null, sortDesc = true;
 
