@@ -669,7 +669,7 @@ try{ const t = localStorage.getItem("pulse-theme");
         </tr>`;
       }).join("");
 
-    document.getElementById("legend").innerHTML = RULES.map(r => {
+    document.getElementById("legend").innerHTML = [...RULES].reverse().map(r => {
       const n = design.counts[NAME[r.code]] || 0;
       return `<span><i style="background:${COLOR[r.code]}"></i>${NAME[r.code]} <b>${n}</b></span>`;
     }).join("") + `<span><i style="background:${IDLE}"></i>no call <b>—</b></span>`;
